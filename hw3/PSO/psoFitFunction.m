@@ -15,7 +15,7 @@ function [fitness] = psoFitFunction(particle)
         Kd = particle(i, 1, 3);
 
         sim("psoPID");
-        
+        %{
         e = y - 1;
         idx = find(abs(e) > 1*settling_rate, 1, 'last');
         if isempty(idx)
@@ -49,7 +49,33 @@ function [fitness] = psoFitFunction(particle)
         end
         
         fitness(i) = -(50*Ess^2 + 50*Mp + 1*tr + 50*ts + penalty);
+        %}
+        settling_time = 2;
+        settling_percent = 0.02;
+        overshoot = 0.2;
+        
+        minus_score = 0;
+    
+        time_range = find(t>settling_time);
+        minus_score = minus_score - sum(abs(5*(1-y(time_range))));
+        
+        if max(y(time_range)) < 1*(1+settling_percent) && min(y(time_range)) > 1*(1-settling_percent)
+            minus_score = minus_score + 9000;
+        elseif max(y(time_range)) > 1*(1+settling_percent) && min(y(time_range)) > 1*(1-settling_percent)
+            minus_score = minus_score + 3000;
+        elseif max(y(time_range)) < 1*(1+settling_percent) && min(y(time_range)) < 1*(1-settling_percent)
+            minus_score = minus_score + 3000;
+        elseif max(y(time_range)) > 1*(1+settling_percent) && min(y(time_range)) < 1*(1-settling_percent)
+            minus_score = minus_score - 9000;
+        end
+        
+        if max(y) < 1*(1+overshoot) && max(y) > 1*(1-overshoot)
+            minus_score = minus_score + 5000;
+        else
+            minus_score = minus_score - 5000;
+        end
 
+        fitness(i) = minus_score;
         
     end
 

@@ -4,7 +4,7 @@ global Kp Ki Kd t y;
 
 fitFunction=@psoEPFitFunction;
 generation = 30;
-particleSize = 60;
+particleSize = 30;
 particleInfoSize = [2, 3];
 mutation_rate = 0.05;
 

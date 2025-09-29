@@ -36,12 +36,13 @@ function [bestParticle] = pso_ep_pid(initialParticle, generation, mutation_rate,
         
         particle(:, 2, :) = w*particle(:, 2, :) + c1*rand()*( pbestParticle - particle(:, 1, :) ) + c2*rand()*( gbestParticle(1, :, :) - particle(:, 1, :) );
         particle(:, 1, :) = particle(:, 1, :) + particle(:, 2, :);
-        %tmp_particle_vel = particle(:, 2, :);
 
         mutation_prob = rand(size(particle));
         mutation_index = mutation_prob < mutation_rate;
-        particle(mutation_index) = rand([sum(mutation_index, "all"), 1]);
-        %particle(:, 2, :) = tmp_particle_vel;
+        new_particle = particle;
+        new_particle(mutation_index) = rand([sum(mutation_index, "all"), 1]);
+        newfitness = fitFunction(new_particle(:, 1, :));
+        particle(newfitness > fitness) = new_particle(newfitness > fitness);
 
     end
 
